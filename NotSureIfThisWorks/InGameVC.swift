@@ -36,12 +36,13 @@ class InGameVC: UIViewController {
     var rand: Int?
     var isHost: Bool?
     var hostName: String?
+    var questionNumberOfficial: Int?
+    var gameCreated = false
     
     weak var timer: NSTimer?
     override func viewDidLoad() {
         super.viewDidLoad()
         parseQuestionsCSV()
-        DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inQueue").setValue(true)
         aButton.hidden = true
         bButton.hidden = true
         cButton.hidden = true
@@ -52,25 +53,101 @@ class InGameVC: UIViewController {
         meLabel.hidden = true
         opponentLabel.hidden = true
         outcomeLabel.hidden = true
+        print("queerbait")
+        
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("questionRandNumber").observeEventType(.Value, withBlock: { snapshot in
+            if snapshot.value as? String != "" {
+                self.questionNumberOfficial = Int((snapshot.value as? String)!)
+                
+                if self.questionNumberOfficial != nil {
+                    self.questionTextView.text = self.questionArray[self.questionNumberOfficial!].question
+                    if self.questionArray[self.questionNumberOfficial!].answerA.hasPrefix("!") {
+                        self.aButton.setTitle(String(self.questionArray[self.questionNumberOfficial!].self.answerA.characters.dropFirst()), forState: .Normal)
+                        
+                    }
+                    else {
+                        self.aButton.setTitle(self.questionArray[self.questionNumberOfficial!].self.answerA, forState: .Normal)
+                    }
+                    
+                    if self.questionArray[self.questionNumberOfficial!].self.answerB.hasPrefix("!") {
+                        self.bButton.setTitle(String(self.questionArray[self.questionNumberOfficial!].self.answerB.characters.dropFirst()), forState: .Normal)
+                    }
+                    else {
+                        self.bButton.setTitle(self.questionArray[self.questionNumberOfficial!].self.answerB, forState: .Normal)
+                    }
+                    
+                    if self.questionArray[self.questionNumberOfficial!].self.answerC.hasPrefix("!") {
+                        self.cButton.setTitle(String(self.questionArray[self.questionNumberOfficial!].self.answerC.characters.dropFirst()), forState: .Normal)
+                    }
+                    else {
+                        self.cButton.setTitle(self.questionArray[self.questionNumberOfficial!].self.answerC, forState: .Normal)
+                    }
+                    
+                    if self.questionArray[self.questionNumberOfficial!].self.answerD.hasPrefix("!") {
+                        self.dButton.setTitle(String(self.questionArray[self.questionNumberOfficial!].self.answerD.characters.dropFirst()), forState: .Normal)
+                    }
+                    else {
+                        self.dButton.setTitle(self.questionArray[self.questionNumberOfficial!].self.answerD, forState: .Normal)
+                    }
+                }
+            }
+            
+        })
+        
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("questionRandNumber").observeEventType(.Value, withBlock: { snapshot in
+            
+            if snapshot.value as? String != nil {
+                self.questionNumberOfficial = Int((snapshot.value as? String)!)
+                print("question found")
+            }
+        })
+        
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).observeEventType(.Value, withBlock: { snapshot in
+            if self.isHost == true {
+                self.myScoreLabel.text = snapshot.childSnapshotForPath("myScore").value as? String
+                self.opponentScoreLabel.text = snapshot.childSnapshotForPath("opponentScore").value as? String
+            }
+            else {
+                self.myScoreLabel.text = snapshot.childSnapshotForPath("opponentScore").value as? String
+                self.opponentScoreLabel.text = snapshot.childSnapshotForPath("myScore").value as? String
+            }
+            
+        })
+        
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("questionRandNumber").observeEventType(.Value, withBlock: { snapshot in
+            if snapshot.value as? String != "" && self.gameCreated == false {
+                print("fag4")
+                self.questionNumberOfficial = Int((snapshot.value as? String)!)
+                self.playGame()
+                self.gameCreated = true
+              
+            }
+        })
         
         if isHost == true {
+            
+            /*rand = Int(arc4random_uniform(UInt32(questionArray.count)))
+            
+            DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("questionRandNumber").setValue(String(rand!))
+            */
             DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("opponent").observeEventType(.Value, withBlock: { snapshot in
-                if snapshot.value as? String != "" {
+                
+                if snapshot.value as? String != "" && self.gameCreated == false {
+                    print("faggot1")
                     self.playGame()
+                    self.gameCreated = true
                 }
             })
         }
-        else {
-            playGame()
-        }
         
         
         
-        if DataService.ds.REF_BASE.authData.uid == "63f1400f-5d06-4fa5-9074-af4067b88a39" {
+        
+        /*if DataService.ds.REF_BASE.authData.uid == "63f1400f-5d06-4fa5-9074-af4067b88a39" {
             
             //display my score
             DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").observeEventType(.Value, withBlock: { snapshot in
-                print(snapshot.value as? String)
+                
                 self.myScoreLabel.text = snapshot.value as? String
                 
             })
@@ -87,28 +164,28 @@ class InGameVC: UIViewController {
                 }
                 
             })
-        }
-        else {
+        }*/
+        /*else {
             
             //display my score
             DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").observeEventType(.Value, withBlock: { snapshot in
                 self.myScoreLabel.text = snapshot.value as? String
-                print(snapshot.value as? String)
+               
                 
             })
             //display opponent score
             DataService.ds.REF_USERS.childByAppendingPath("63f1400f-5d06-4fa5-9074-af4067b88a39").childByAppendingPath("inGame").childByAppendingPath("myScore").observeEventType(.Value, withBlock: { snapshot in
                 self.opponentScoreLabel.text = snapshot.value as? String
-                print(snapshot.value as? String)
+               
             })
             
             DataService.ds.REF_USERS.childByAppendingPath("63f1400f-5d06-4fa5-9074-af4067b88a39").childByAppendingPath("inQueue").observeEventType(.Value, withBlock: { snapshot in
                 if snapshot.value as? Bool == false {
                     self.playGame()
-                    print("queer")
+                   
                 }
             })
-        }
+        }*/
     }
 
     override func didReceiveMemoryWarning() {
@@ -119,50 +196,56 @@ class InGameVC: UIViewController {
     
     func displayQuestion() {
         rand = Int(arc4random_uniform(UInt32(questionArray.count)))
+        if isHost == true {
+            
+            DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("questionRandNumber").setValue(String(rand!))
+            print("should have changed the question")
+            
+            
+        }
+        
+        /*DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("questionRandNumber").observeSingleEventOfType(.Value, withBlock: { snapshot in
+            if snapshot.value as? String != "" {
+                self.questionNumberOfficial = Int((snapshot.value as? String)!)
+            }
+            
+        })*/
+        
+        
+       /* DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("questionRandNumber").observeEventType(.Value, withBlock: { snapshot in
+            if snapshot.value as? String != "" {
+                self.questionNumberOfficial = Int((snapshot.value as? String)!)
+            }
+            
+        })*/
+        
+        
         if numberOfQuestions == 3 {
+            print("game is over")
             endGame()
-            print("fag")
             timer?.invalidate()
         }
         enableButtons()
         numberOfQuestions += 1
         print(numberOfQuestions)
+        print(questionNumberOfficial)
+       
         
-        questionTextView.text = questionArray[rand!].question
-        if questionArray[rand!].answerA.hasPrefix("!") {
-            aButton.setTitle(String(questionArray[rand!].answerA.characters.dropFirst()), forState: .Normal)
-            
-        }
-        else {
-            aButton.setTitle(questionArray[rand!].answerA, forState: .Normal)
-        }
+      
         
-        if questionArray[rand!].answerB.hasPrefix("!") {
-            bButton.setTitle(String(questionArray[rand!].answerB.characters.dropFirst()), forState: .Normal)
-        }
-        else {
-            bButton.setTitle(questionArray[rand!].answerB, forState: .Normal)
-        }
         
-        if questionArray[rand!].answerC.hasPrefix("!") {
-            cButton.setTitle(String(questionArray[rand!].answerC.characters.dropFirst()), forState: .Normal)
-        }
-        else {
-            cButton.setTitle(questionArray[rand!].answerC, forState: .Normal)
-        }
         
-        if questionArray[rand!].answerD.hasPrefix("!") {
-            dButton.setTitle(String(questionArray[rand!].answerD.characters.dropFirst()), forState: .Normal)
-        }
-        else {
-            dButton.setTitle(questionArray[rand!].answerD, forState: .Normal)
-        }
+        
+       
+        
         
     }
     
     func playGame() {
-        
-        
+       
+        myScore = 0
+            
+            
         displayQuestion()
         aButton.hidden = false
         bButton.hidden = false
@@ -173,9 +256,8 @@ class InGameVC: UIViewController {
         opponentScoreLabel.hidden = false
         meLabel.hidden = false
         opponentLabel.hidden = false
-
+            
         timer = NSTimer.scheduledTimerWithTimeInterval(10, target: self, selector: "displayQuestion", userInfo: nil, repeats: true)
-        
         
     }
     func parseQuestionsCSV() {
@@ -202,78 +284,53 @@ class InGameVC: UIViewController {
     
     @IBAction func onAButtonPressed(sender: AnyObject) {
         disableButtons()
-        if DataService.ds.REF_BASE.authData.uid == "63f1400f-5d06-4fa5-9074-af4067b88a39" {
-            if questionArray[rand!].answerA.hasPrefix("!") {
-                myScore += 1
-                DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").setValue(String(myScore))
-                DataService.ds.REF_USERS.childByAppendingPath("7524bac2-2247-4f6d-8361-fab1dbd622e4").childByAppendingPath("inGame").childByAppendingPath("opponentScore").setValue(String(myScore))
-            }
+        if questionArray[questionNumberOfficial!].answerA.hasPrefix("!") {
+            myScore += 1
         }
-        else {
-            if questionArray[rand!].answerA.hasPrefix("!") {
-                myScore += 1
-                DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").setValue(String(myScore))
-                DataService.ds.REF_USERS.childByAppendingPath("63f1400f-5d06-4fa5-9074-af4067b88a39").childByAppendingPath("inGame").childByAppendingPath("opponentScore").setValue(String(myScore))
-                
-            }
-        }
+        
+        addScore()
+        
     }
     
     @IBAction func onBButtonPressed(sender: AnyObject) {
         disableButtons()
-        if DataService.ds.REF_BASE.authData.uid == "63f1400f-5d06-4fa5-9074-af4067b88a39" {
-            if questionArray[rand!].answerB.hasPrefix("!") {
-                myScore += 1
-                DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").setValue(String(myScore))
-                DataService.ds.REF_USERS.childByAppendingPath("7524bac2-2247-4f6d-8361-fab1dbd622e4").childByAppendingPath("inGame").childByAppendingPath("opponentScore").setValue(String(myScore))
-            }
+        if questionArray[questionNumberOfficial!].answerB.hasPrefix("!") {
+            myScore += 1
         }
-        else {
-            if questionArray[rand!].answerB.hasPrefix("!") {
-                myScore += 1
-                DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").setValue(String(myScore))
-                DataService.ds.REF_USERS.childByAppendingPath("63f1400f-5d06-4fa5-9074-af4067b88a39").childByAppendingPath("inGame").childByAppendingPath("opponentScore").setValue(String(myScore))
-                
-            }
-        }
+        
+        addScore()
+        
     }
     
     @IBAction func onCButtonPressed(sender: AnyObject) {
         disableButtons()
-        if DataService.ds.REF_BASE.authData.uid == "63f1400f-5d06-4fa5-9074-af4067b88a39" {
-            if questionArray[rand!].answerC.hasPrefix("!") {
-                myScore += 1
-                DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").setValue(String(myScore))
-                DataService.ds.REF_USERS.childByAppendingPath("7524bac2-2247-4f6d-8361-fab1dbd622e4").childByAppendingPath("inGame").childByAppendingPath("opponentScore").setValue(String(myScore))
-            }
+        if questionArray[questionNumberOfficial!].answerC.hasPrefix("!") {
+            myScore += 1
         }
-        else {
-            if questionArray[rand!].answerC.hasPrefix("!") {
-                myScore += 1
-                DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").setValue(String(myScore))
-                DataService.ds.REF_USERS.childByAppendingPath("63f1400f-5d06-4fa5-9074-af4067b88a39").childByAppendingPath("inGame").childByAppendingPath("opponentScore").setValue(String(myScore))
-                
-            }
-        }
+        
+        addScore()
+        
     }
     
     @IBAction func onDButtonPressed(sender: AnyObject) {
         disableButtons()
-        if DataService.ds.REF_BASE.authData.uid == "63f1400f-5d06-4fa5-9074-af4067b88a39" {
-            if questionArray[rand!].answerD.hasPrefix("!") {
-                myScore += 1
-                DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").setValue(String(myScore))
-                DataService.ds.REF_USERS.childByAppendingPath("7524bac2-2247-4f6d-8361-fab1dbd622e4").childByAppendingPath("inGame").childByAppendingPath("opponentScore").setValue(String(myScore))
-            }
+        if questionArray[questionNumberOfficial!].answerD.hasPrefix("!") {
+            myScore += 1
+        }
+        
+        addScore()
+       
+    }
+    
+    func addScore() {
+        
+        if isHost == true {
+            DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("myScore").setValue(String(myScore))
         }
         else {
-            if questionArray[rand!].answerD.hasPrefix("!") {
-                myScore += 1
-                DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").setValue(String(myScore))
-                DataService.ds.REF_USERS.childByAppendingPath("63f1400f-5d06-4fa5-9074-af4067b88a39").childByAppendingPath("inGame").childByAppendingPath("opponentScore").setValue(String(myScore))
-                
-            }
+            DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).childByAppendingPath("opponentScore").setValue(String(myScore))
         }
+        
     }
     
     func disableButtons() {
@@ -291,8 +348,6 @@ class InGameVC: UIViewController {
     }
     
     func endGame() {
-        var myScore: Int?
-        var opponentScore: Int?
         
         aButton.hidden = true
         bButton.hidden = true
@@ -304,6 +359,32 @@ class InGameVC: UIViewController {
         meLabel.hidden = true
         opponentLabel.hidden = true
         outcomeLabel.hidden = false
+        
+        
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(hostName).observeEventType(.Value, withBlock: { snapshot in
+            if self.isHost == true {
+                if Int((snapshot.childSnapshotForPath("myScore").value as? String)!) > Int((snapshot.childSnapshotForPath("opponentScore").value as? String)!) {
+                    self.outcomeLabel.text = "You Win"
+                }
+                if Int((snapshot.childSnapshotForPath("myScore").value as? String)!) < Int((snapshot.childSnapshotForPath("opponentScore").value as? String)!) {
+                    self.outcomeLabel.text = "You Lose"
+                }
+                if Int((snapshot.childSnapshotForPath("myScore").value as? String)!) == Int((snapshot.childSnapshotForPath("opponentScore").value as? String)!) {
+                    self.outcomeLabel.text = "It's A Tie!"
+                }
+            }
+            else {
+                if Int((snapshot.childSnapshotForPath("myScore").value as? String)!) < Int((snapshot.childSnapshotForPath("opponentScore").value as? String)!) {
+                    self.outcomeLabel.text = "You Win"
+                }
+                if Int((snapshot.childSnapshotForPath("myScore").value as? String)!) > Int((snapshot.childSnapshotForPath("opponentScore").value as? String)!) {
+                    self.outcomeLabel.text = "You Lose"
+                }
+                if Int((snapshot.childSnapshotForPath("myScore").value as? String)!) == Int((snapshot.childSnapshotForPath("opponentScore").value as? String)!) {
+                    self.outcomeLabel.text = "It's A Tie!"
+                }
+            }
+        })
         
        // DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inGame").childByAppendingPath("myScore").observeEventType(.Value, withBlock: { snapshot in
            // myScore = snapshot.value as! Int

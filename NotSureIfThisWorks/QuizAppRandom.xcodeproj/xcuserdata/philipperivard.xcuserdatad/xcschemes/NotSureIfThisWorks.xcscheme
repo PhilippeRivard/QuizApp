@@ -15,9 +15,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "647B97A41C44BE7F0090F138"
-               BuildableName = "NotSureIfThisWorks.app"
-               BlueprintName = "NotSureIfThisWorks"
-               ReferencedContainer = "container:NotSureIfThisWorks.xcodeproj">
+               BuildableName = "QuizAppRandom.app"
+               BlueprintName = "QuizAppRandom"
+               ReferencedContainer = "container:QuizAppRandom.xcodeproj">
             </BuildableReference>
          </BuildActionEntry>
       </BuildActionEntries>
@@ -33,9 +33,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "647B97B81C44BE800090F138"
-               BuildableName = "NotSureIfThisWorksTests.xctest"
-               BlueprintName = "NotSureIfThisWorksTests"
-               ReferencedContainer = "container:NotSureIfThisWorks.xcodeproj">
+               BuildableName = "QuizAppRandomTests.xctest"
+               BlueprintName = "QuizAppRandomTests"
+               ReferencedContainer = "container:QuizAppRandom.xcodeproj">
             </BuildableReference>
          </TestableReference>
          <TestableReference
@@ -43,9 +43,9 @@
             <BuildableReference
                BuildableIdentifier = "primary"
                BlueprintIdentifier = "647B97C31C44BE800090F138"
-               BuildableName = "NotSureIfThisWorksUITests.xctest"
-               BlueprintName = "NotSureIfThisWorksUITests"
-               ReferencedContainer = "container:NotSureIfThisWorks.xcodeproj">
+               BuildableName = "QuizAppRandomTests.xctest"
+               BlueprintName = "QuizAppRandomUITests"
+               ReferencedContainer = "container:QuizAppRandom.xcodeproj">
             </BuildableReference>
          </TestableReference>
       </Testables>
@@ -53,9 +53,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "647B97A41C44BE7F0090F138"
-            BuildableName = "NotSureIfThisWorks.app"
-            BlueprintName = "NotSureIfThisWorks"
-            ReferencedContainer = "container:NotSureIfThisWorks.xcodeproj">
+            BuildableName = "QuizAppRandom.app"
+            BlueprintName = "QuizAppRandom"
+            ReferencedContainer = "container:QuizAppRandom.xcodeproj">
          </BuildableReference>
       </MacroExpansion>
       <AdditionalOptions>
@@ -76,9 +76,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "647B97A41C44BE7F0090F138"
-            BuildableName = "NotSureIfThisWorks.app"
-            BlueprintName = "NotSureIfThisWorks"
-            ReferencedContainer = "container:NotSureIfThisWorks.xcodeproj">
+            BuildableName = "QuizAppRandom.app"
+            BlueprintName = "QuizAppRandom"
+            ReferencedContainer = "container:QuizAppRandom.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
       <AdditionalOptions>
@@ -95,9 +95,9 @@
          <BuildableReference
             BuildableIdentifier = "primary"
             BlueprintIdentifier = "647B97A41C44BE7F0090F138"
-            BuildableName = "NotSureIfThisWorks.app"
-            BlueprintName = "NotSureIfThisWorks"
-            ReferencedContainer = "container:NotSureIfThisWorks.xcodeproj">
+            BuildableName = "QuizAppRandom.app"
+            BlueprintName = "QuizAppRandom"
+            ReferencedContainer = "container:QuizAppRandom.xcodeproj">
          </BuildableReference>
       </BuildableProductRunnable>
    </ProfileAction>

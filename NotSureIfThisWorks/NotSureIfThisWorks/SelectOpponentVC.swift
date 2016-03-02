@@ -201,15 +201,36 @@ class SelectOpponentVC: UIViewController {
     }
     
     @IBAction func onPlayer1BtnPressed(sender: AnyObject) {
-        var counter = 0
-        var counter2 = 0
-        var counter3 = 0
+        var inQueue = false
+        /*
+        DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inQueue").observeEventType(.Value, withBlock: { snapshot in
+            if snapshot.value as? Bool == true {
+                inQueue = true
+            }
+            else if snapshot.value as? Bool == false {
+                inQueue = false
+            }
+        
+        })
+
+*/
+        
+        DataService.ds.REF_BASE.observeEventType(.Value, withBlock: { snapshot in
+            if snapshot.childSnapshotForPath("currentGames").value as? String == nil && inQueue == false {
+                inQueue = true
+                self.createGame()
+                self.performSegueWithIdentifier("InGameVC", sender: nil)
+                DataService.ds.REF_BASE.removeAllObservers()
+                
+            }
+        })
         
         DataService.ds.REF_BASE.childByAppendingPath("currentGames").observeEventType(.ChildAdded, withBlock: { snapshot in
-            if snapshot.childSnapshotForPath("opponent").value as? String == "" {
+            if snapshot.childSnapshotForPath("opponent").value as? String == "" && inQueue == false {
                 
-                if (counter == 0) && (DataService.ds.REF_BASE.authData.uid != snapshot.key) {
-                    counter += 1
+                if (DataService.ds.REF_BASE.authData.uid != snapshot.key) {
+                    inQueue = true
+                    //DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inQueue").setValue(true)
                     
                 
                     self.isHost = false
@@ -224,17 +245,22 @@ class SelectOpponentVC: UIViewController {
         
         
         DataService.ds.REF_BASE.childByAppendingPath("currentGames").observeEventType(.ChildAdded, withBlock: { snapshot in
-            counter2 += 1
-            if snapshot.childSnapshotForPath("opponent").value as? String != "" {
-                counter3 += 1
-                print(counter2)
+            //counter2 += 1
+            if inQueue == false && snapshot.childSnapshotForPath("opponent").value as? String != "" {
+                inQueue = true
                 
-                if counter3 == counter2 {
-                    print("nig")
-                    self.createGame()
-                    self.performSegueWithIdentifier("InGameVC", sender: nil)
-                    DataService.ds.REF_BASE.childByAppendingPath("currentGames").removeAllObservers()
-                }
+                //counter3 += 1
+                //print(counter2)
+                
+               // if counter3 == counter2 {
+              //      print("nig")
+                //    self.createGame()
+                  //  self.performSegueWithIdentifier("InGameVC", sender: nil)
+                    //DataService.ds.REF_BASE.childByAppendingPath("currentGames").removeAllObservers()
+                //}
+                self.createGame()
+                self.performSegueWithIdentifier("InGameVC", sender: nil)
+                DataService.ds.REF_BASE.childByAppendingPath("currentGames").removeAllObservers()
             }
         })
         
@@ -260,12 +286,16 @@ class SelectOpponentVC: UIViewController {
     }*/
     
     func createGame() {
-        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("opponent").setValue("")
-        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("questionRandNumber").setValue("")
-        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("myScore").setValue("")
-        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("opponentScore").setValue("")
+        DataService.ds.REF_USERS.childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("inQueue").setValue(true)
         self.isHost = true
         self.hostName = DataService.ds.REF_BASE.authData.uid
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("opponent").setValue("")
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("questionRandNumber").setValue("")
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("myScore").setValue("0")
+        DataService.ds.REF_BASE.childByAppendingPath("currentGames").childByAppendingPath(DataService.ds.REF_BASE.authData.uid).childByAppendingPath("opponentScore").setValue("0")
+        
+        
+        
     }
     
     @IBAction func onBackBtnPressed(sender: AnyObject) {
